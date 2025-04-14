@@ -9,16 +9,67 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        GeometryReader { geometryReader in
+            ZStack {
+                Color.background
+                    .ignoresSafeArea()
+                
+                VStack {
+                    VStack {
+                        
+                        Spacer()
+               
+                        Image("orange")
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                        
+                        Spacer()
+           
+                        HStack {
+                            VStack {
+                                LetterView(character: "")
+                                Rectangle()
+                                    .fill(Color.white )
+                                    .frame(width: 25, height: 2)
+                            }
+                        }
+                        .padding(.bottom)
+                    }
+                    .frame(width: geometryReader.size.width * 0.9, height: geometryReader.size.width * 0.9)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.border, lineWidth: 2)
+                    }
+                    
+                    Text("Score: 0")
+                        .foregroundStyle(.white)
+                        .font(.system(size: 15))
+                        .padding(.top)
+                    
+                    
+                    HStack {
+                        LetterView(character: "O")
+                        LetterView(character: "P")
+                    }
+                }
+            }
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
+}
+
+struct LetterView: View {
+    let character: String
+    
+    var body: some View {
+        Text(character)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 30, height: 30)
+            .background(Color.white.opacity(0.4))
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+    }
 }
