@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State var letters: [String] = ["O", "R", "A", "N", "G", "E"]
+    
     var body: some View {
         GeometryReader { geometryReader in
             ZStack {
@@ -26,11 +29,13 @@ struct ContentView: View {
                         Spacer()
            
                         HStack {
-                            VStack {
-                                LetterView(character: "")
-                                Rectangle()
-                                    .fill(Color.white )
-                                    .frame(width: 25, height: 2)
+                            ForEach(letters, id: \.self) { letter in
+                                VStack {
+                                    LetterView(character: "")
+                                    Rectangle()
+                                        .fill(Color.white )
+                                        .frame(width: 25, height: 2)
+                                }
                             }
                         }
                         .padding(.bottom)
@@ -48,8 +53,9 @@ struct ContentView: View {
                     
                     
                     HStack {
-                        LetterView(character: "O")
-                        LetterView(character: "P")
+                        ForEach(letters, id: \.self) { letter in
+                            LetterView(character: letter)
+                        }
                     }
                 }
             }
