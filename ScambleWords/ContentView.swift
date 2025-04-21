@@ -7,9 +7,24 @@
 
 import SwiftUI
 
+struct Letter: Identifiable, Hashable {
+    let id: Int
+    var text: String
+}
+
+
 struct ContentView: View {
     
-    @State var letters: [String] = ["O", "R", "A", "N", "G", "E"]
+    @State var letters: [Letter] = [
+        Letter(id: 0, text: "R"),
+        Letter(id: 1, text: "A"),
+        Letter(id: 2, text: "G"),
+        Letter(id: 3, text: "E"),
+        Letter(id: 4, text: "0"),
+        Letter(id: 5, text: "N")
+    ]
+    
+    @State var guessedLetters: [Letter] = []
     
     var body: some View {
         GeometryReader { geometryReader in
@@ -29,12 +44,21 @@ struct ContentView: View {
                         Spacer()
            
                         HStack {
-                            ForEach(letters, id: \.self) { letter in
+                            ForEach(guessedLetters) { letter in
                                 VStack {
-                                    LetterView(character: "")
+                                    LetterView(letter: letter)
                                     Rectangle()
                                         .fill(Color.white )
                                         .frame(width: 25, height: 2)
+                                }
+                                .onTapGesture {
+                                    if let index = guessedLetters.firstIndex(
+                                        of: letter
+                                    ) {
+                                        guessedLetters.remove(at: index)
+                                        letters[letter.id] = letter
+                                    }
+                                    
                                 }
                             }
                         }
@@ -53,8 +77,21 @@ struct ContentView: View {
                     
                     
                     HStack {
-                        ForEach(letters, id: \.self) { letter in
-                            LetterView(character: letter)
+                        ForEach(
+                            Array(letters.enumerated()),
+                            id: \.1
+                        ) {
+ index,
+ letter in
+                            LetterView(letter: letter)
+                                .onTapGesture {
+                                    if !letter.text.isEmpty {
+                                        guessedLetters.append(letter)
+                                        letters[index] = Letter(
+                                            id: 0,
+                                            text: ""
+                                        )                                    }
+                                }
                         }
                     }
                 }
@@ -68,10 +105,10 @@ struct ContentView: View {
 }
 
 struct LetterView: View {
-    let character: String
+    let letter: Letter
     
     var body: some View {
-        Text(character)
+        Text(letter.text)
             .font(.system(size: 15, weight: .semibold))
             .foregroundStyle(.white)
             .frame(width: 30, height: 30)
