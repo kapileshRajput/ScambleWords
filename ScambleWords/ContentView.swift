@@ -27,10 +27,6 @@ struct ContentView: View {
     @State var guessedLetters: [Letter] = []
     var correctAnswer: String = "0RANGE"
     
-    @State var shouldShowAlert: Bool = false
-    @State var alertTitle: String = ""
-    @State var alertMessage: String = ""
-    
     var body: some View {
         GeometryReader { geometryReader in
             ZStack {
@@ -105,22 +101,16 @@ struct ContentView: View {
                                         }.joined()
                                         
                                         if answer == correctAnswer {
-                                            self.alertTitle = "Correct Answer!"
-                                            self.alertMessage = "Congratulations you have spelled the word correctly"
+                                            
                                         } else {
-                                            self.alertTitle = "Wrong Answer!"
-                                            self.alertMessage = "Sorry, you have spelled the word incorrectly"
+                                            
                                         }
-                                        self.shouldShowAlert = true
                                     }
                                 }
                         }
                     }
                 }
             }
-        }
-        .alert(alertTitle, isPresented: $shouldShowAlert) {} message: {
-            Text(alertMessage)
         }
     }
 }
