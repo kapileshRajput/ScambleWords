@@ -25,6 +25,9 @@ struct ContentView: View {
     ]
     
     @State var guessedLetters: [Letter] = []
+    @State var showSuccess: Bool = false
+    @State var showFailure: Bool = false
+    @State var score: Int = 0
     var correctAnswer: String = "0RANGE"
     
     var body: some View {
@@ -71,7 +74,7 @@ struct ContentView: View {
                             .stroke(Color.border, lineWidth: 2)
                     }
                     
-                    Text("Score: 0")
+                    Text("Score: \(score)")
                         .foregroundStyle(.white)
                         .font(.system(size: 15))
                         .padding(.top)
@@ -101,14 +104,43 @@ struct ContentView: View {
                                         }.joined()
                                         
                                         if answer == correctAnswer {
-                                            
+                                            self.showSuccess = true
+                                            self.score += 1
+                                            DispatchQueue.main
+                                                .asyncAfter(
+                                                    deadline: .now() + 1,
+                                                    execute: {
+                                                        self.showSuccess = false
+                                                    }
+                                                )
                                         } else {
-                                            
+                                            showFailure = true
+                                            DispatchQueue.main
+                                                .asyncAfter(
+                                                    deadline: .now() + 1,
+                                                    execute: {
+                                                        self.showFailure = false
+                                                    }
+                                                )
                                         }
                                     }
                                 }
                         }
                     }
+                }
+                
+                if showSuccess {
+                    VStack {
+                        Image("tick")
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.3))
+                } else if showFailure {
+                    VStack {
+                        Image("cross")
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.3))
                 }
             }
         }
