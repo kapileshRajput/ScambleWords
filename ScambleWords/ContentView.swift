@@ -25,6 +25,11 @@ struct ContentView: View {
     ]
     
     @State var guessedLetters: [Letter] = []
+    var correctAnswer: String = "0RANGE"
+    
+    @State var shouldShowAlert: Bool = false
+    @State var alertTitle: String = ""
+    @State var alertMessage: String = ""
     
     var body: some View {
         GeometryReader { geometryReader in
@@ -36,13 +41,13 @@ struct ContentView: View {
                     VStack {
                         
                         Spacer()
-               
+                        
                         Image("orange")
                             .resizable()
                             .frame(width: 100, height: 100)
                         
                         Spacer()
-           
+                        
                         HStack {
                             ForEach(guessedLetters) { letter in
                                 VStack {
@@ -81,8 +86,8 @@ struct ContentView: View {
                             Array(letters.enumerated()),
                             id: \.1
                         ) {
- index,
- letter in
+                            index,
+                            letter in
                             LetterView(letter: letter)
                                 .onTapGesture {
                                     if !letter.text.isEmpty {
@@ -90,12 +95,32 @@ struct ContentView: View {
                                         letters[index] = Letter(
                                             id: 0,
                                             text: ""
-                                        )                                    }
+                                        )
+                                    }
+                                    
+                                    if guessedLetters.count == letters.count {
+                                        // check for result
+                                        let answer = guessedLetters.map {
+                                            String($0.text)
+                                        }.joined()
+                                        
+                                        if answer == correctAnswer {
+                                            self.alertTitle = "Correct Answer!"
+                                            self.alertMessage = "Congratulations you have spelled the word correctly"
+                                        } else {
+                                            self.alertTitle = "Wrong Answer!"
+                                            self.alertMessage = "Sorry, you have spelled the word incorrectly"
+                                        }
+                                        self.shouldShowAlert = true
+                                    }
                                 }
                         }
                     }
                 }
             }
+        }
+        .alert(alertTitle, isPresented: $shouldShowAlert) {} message: {
+            Text(alertMessage)
         }
     }
 }
