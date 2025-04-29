@@ -7,28 +7,16 @@
 
 import SwiftUI
 
-struct Letter: Identifiable, Hashable {
-    let id: Int
-    var text: String
-}
-
-
-struct ContentView: View {
+struct GameView: View {
     
-    @State var letters: [Letter] = [
-        Letter(id: 0, text: "R"),
-        Letter(id: 1, text: "A"),
-        Letter(id: 2, text: "G"),
-        Letter(id: 3, text: "E"),
-        Letter(id: 4, text: "0"),
-        Letter(id: 5, text: "N")
-    ]
+    @State private var questions: [Question] = Question.generateQuestions()
     
-    @State var guessedLetters: [Letter] = []
-    @State var showSuccess: Bool = false
-    @State var showFailure: Bool = false
-    @State var score: Int = 0
-    var correctAnswer: String = "0RANGE"
+    @State private var guessedLetters: [Letter] = []
+    @State private var showSuccess: Bool = false
+    @State private var showFailure: Bool = false
+    @State private var score: Int = 0
+    @State private var currentQuestionIndex: Int = 0
+    @State private var showFinalScore: Bool = false
     
     var body: some View {
         GeometryReader { geometryReader in
@@ -41,7 +29,7 @@ struct ContentView: View {
                         
                         Spacer()
                         
-                        Image("orange")
+                        Image(questions[currentQuestionIndex].image)
                             .resizable()
                             .frame(width: 100, height: 100)
                         
@@ -60,7 +48,8 @@ struct ContentView: View {
                                         of: letter
                                     ) {
                                         guessedLetters.remove(at: index)
-                                        letters[letter.id] = letter
+                                        questions[currentQuestionIndex]
+                                            .scrambledLetters[letter.id] = letter
                                     }
                                     
                                 }
@@ -82,7 +71,7 @@ struct ContentView: View {
                     
                     HStack {
                         ForEach(
-                            Array(letters.enumerated()),
+                            Array(questions[currentQuestionIndex].scrambledLetters.enumerated()),
                             id: \.1
                         ) {
                             index,
@@ -91,19 +80,18 @@ struct ContentView: View {
                                 .onTapGesture {
                                     if !letter.text.isEmpty {
                                         guessedLetters.append(letter)
-                                        letters[index] = Letter(
-                                            id: 0,
-                                            text: ""
-                                        )
+                                        questions[currentQuestionIndex]
+                                            .scrambledLetters[index].text = ""
+                                        
                                     }
                                     
-                                    if guessedLetters.count == letters.count {
+                                    if guessedLetters.count == questions[currentQuestionIndex].scrambledLetters.count {
                                         // check for result
                                         let answer = guessedLetters.map {
                                             String($0.text)
                                         }.joined()
                                         
-                                        if answer == correctAnswer {
+                                        if answer == questions[currentQuestionIndex].answer {
                                             self.showSuccess = true
                                             self.score += 1
                                             DispatchQueue.main
@@ -123,6 +111,14 @@ struct ContentView: View {
                                                     }
                                                 )
                                         }
+                                        
+                                        guessedLetters.removeAll()
+                                        
+                                        if currentQuestionIndex == (questions.count - 1) {
+                                            showFinalScore = true
+                                        } else {
+                                            currentQuestionIndex += 1
+                                        }
                                     }
                                 }
                         }
@@ -135,7 +131,9 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.black.opacity(0.3))
-                } else if showFailure {
+                }
+                
+                if showFailure {
                     VStack {
                         Image("cross")
                     }
@@ -144,22 +142,21 @@ struct ContentView: View {
                 }
             }
         }
+        .sheet(isPresented: $showFinalScore) {
+            resetGame()
+        } content: {
+            ScoreView(score: score, questionCount: questions.count)
+        }
+    }
+    
+    private func resetGame() {
+        currentQuestionIndex = 0
+        score = 0
+        questions = Question.generateQuestions()
     }
 }
 
 #Preview {
-    ContentView()
+    GameView()
 }
 
-struct LetterView: View {
-    let letter: Letter
-    
-    var body: some View {
-        Text(letter.text)
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(width: 30, height: 30)
-            .background(Color.white.opacity(0.4))
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-    }
-}
